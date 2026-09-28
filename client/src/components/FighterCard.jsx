@@ -1,8 +1,10 @@
 //TODO. Have it re-sort list after editing. Right now, it sends a newly edited fighter to bottom of list, regardless of id.
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function FighterCard({ fighter, onFighterChanged }) {
+  const navigate = useNavigate();
   //True/false to bring up an Edit menu when clicking the edit button
   const [isEditing, setIsEditing] = useState(false);
   const [editFighter, setEditFighter] = useState({
@@ -159,6 +161,15 @@ function FighterCard({ fighter, onFighterChanged }) {
 
       <button onClick={handleDelete}>Delete</button>
       <button onClick={() => setIsEditing(true)}>Edit</button>
+      <button
+        onClick={() =>
+          navigate("/battle", {
+            state: { playerFighter: fighter },
+          })
+        }
+      >
+        Use
+      </button>
     </div>
   );
 }

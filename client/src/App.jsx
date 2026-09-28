@@ -124,6 +124,8 @@
 import { useEffect, useState } from "react";
 import AddFighter from "./components/AddFighter";
 import FighterList from "./components/FighterList";
+import Battle from "./components/Battle";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   const [fighters, setFighters] = useState([]);
@@ -148,17 +150,45 @@ function App() {
     getFighters();
   }, []);
 
-  return (
-    <div>
-      <h1>Arena Clash</h1>
+  //From before adding routes where the only page I had was the list of fighters.
+  //   return (
+  //     <div>
+  //       <h1>Arena Clash</h1>
 
-      <h2>Fighters</h2>
-      <AddFighter onFighterAdded={getFighters}></AddFighter>
-      <FighterList
-        fighters={fighters}
-        onFighterChanged={getFighters}
-      ></FighterList>
-    </div>
+  //       <h2>Fighters</h2>
+  //       <AddFighter onFighterAdded={getFighters}></AddFighter>
+  //       <FighterList
+  //         fighters={fighters}
+  //         onFighterChanged={getFighters}
+  //       ></FighterList>
+  //     </div>
+
+  //   );
+  // }
+
+  //Wrapping it in routes so I can navigate between pages
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <div>
+              <h1>Arena Clash</h1>
+
+              <AddFighter onFighterAdded={getFighters} />
+
+              <FighterList
+                fighters={fighters}
+                onFightersChanged={getFighters}
+              />
+            </div>
+          }
+        />
+
+        <Route path="/battle" element={<Battle fighters={fighters} />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
