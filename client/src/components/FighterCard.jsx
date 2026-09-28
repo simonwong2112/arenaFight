@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-function FighterCard({ fighter, onFighterChanged }) {
+function FighterCard({ fighter, onFighterChanged, token }) {
   const navigate = useNavigate();
   //True/false to bring up an Edit menu when clicking the edit button
   const [isEditing, setIsEditing] = useState(false);
@@ -18,7 +18,9 @@ function FighterCard({ fighter, onFighterChanged }) {
 
   //Get the list of abilities, so editing can access them to allow fighters to change abilities.
   useEffect(() => {
-    fetch("http://localhost:3000/api/abilities")
+    fetch("http://localhost:3000/api/abilities", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((response) => response.json())
       .then((data) => setAbilities(data))
       .catch((error) => {
@@ -30,6 +32,9 @@ function FighterCard({ fighter, onFighterChanged }) {
   const handleDelete = () => {
     fetch(`http://localhost:3000/api/fighters/${fighter.id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((response) => response.json())
       .then((data) => {
@@ -55,6 +60,7 @@ function FighterCard({ fighter, onFighterChanged }) {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(updatedFighter),
     })

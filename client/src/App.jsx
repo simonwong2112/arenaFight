@@ -125,13 +125,28 @@ import { useEffect, useState } from "react";
 import AddFighter from "./components/AddFighter";
 import FighterList from "./components/FighterList";
 import Battle from "./components/Battle";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Register from "./components/Register";
+import Login from "./components/Login";
 
 function App() {
   const [fighters, setFighters] = useState([]);
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const handleLogin = (newToken) => {
+    setToken(newToken);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+  };
 
   const getFighters = () => {
-    fetch("http://localhost:3000/api/fighters")
+    fetch("http://localhost:3000/api/fighters", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         console.log("Response:", response);
         return response.json();
@@ -173,20 +188,33 @@ function App() {
         <Route
           path="/"
           element={
-            <div>
-              <h1>Arena Clash</h1>
+            token ? (
+              <div>
+                <h1>Arena Clash</h1>
+                <button onClick={handleLogout}>Logout</button>
 
-              <AddFighter onFighterAdded={getFighters} />
+                <AddFighter onFighterAdded={getFighters} token={token} />
 
-              <FighterList
-                fighters={fighters}
-                onFightersChanged={getFighters}
-              />
-            </div>
+                <FighterList
+                  fighters={fighters}
+                  onFightersChanged={getFighters}
+                  token={token}
+                />
+              </div>
+            ) : (
+              <Navigate to="/login" />
+            )
           }
         />
 
-        <Route path="/battle" element={<Battle fighters={fighters} />} />
+        <Route
+          path="/battle"
+          element={
+            token ? <Battle fighters={fighters} /> : <Navigate to="/login" />
+          }
+        />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,13 +1,14 @@
 import FighterCard from "./FighterCard";
 
-function FighterList({ fighters, onFighterChanged }) {
+function FighterList({ fighters, onFightersChanged, token }) {
   return (
     <div>
       {fighters.map((fighter) => (
         <FighterCard
           key={fighter.id}
           fighter={fighter}
-          onFighterChanged={onFighterChanged}
+          onFighterChanged={onFightersChanged}
+          token={token}
         />
       ))}
     </div>

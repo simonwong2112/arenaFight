@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"; //imports
 
-function AddFighter({ onFighterAdded }) {
+function AddFighter({ onFighterAdded, token }) {
   //import abilities to be able to show them
   const [abilities, setAbilities] = useState([]);
   //Import all the get/sets for the stats.
@@ -11,7 +11,11 @@ function AddFighter({ onFighterAdded }) {
   const [abilityId, setAbilityId] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/abilities")
+    fetch("http://localhost:3000/api/abilities", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => response.json())
       .then((data) => setAbilities(data))
       .catch((error) => {
@@ -34,6 +38,7 @@ function AddFighter({ onFighterAdded }) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(newFighter),
     })

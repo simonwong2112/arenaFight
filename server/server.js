@@ -1,7 +1,36 @@
 const client = require("./db");
 const express = require("express");
 const cors = require("cors");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET = "WHAT AM I DOING";
 //const fighters = require("./fighters"); Don't need now since pulling from database api instead of a specific file.
+
+//validates tokens
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({
+      error: "Access token required",
+    });
+  }
+
+  try {
+    const user = jwt.verify(token, JWT_SECRET);
+
+    req.user = user;
+
+    next();
+  } catch (error) {
+    return res.status(403).json({
+      error: "Invalid or expired token",
+    });
+  }
+};
 
 const app = express();
 app.use(cors());
@@ -21,7 +50,7 @@ app.use(express.json());
 // });
 
 //Shows ability details too. Format to look decent later.
-app.get("/api/fighters", async (req, res) => {
+app.get("/api/fighters", authenticateToken, async (req, res) => {
   const SQL = `
     SELECT
       fighters.*,
@@ -86,7 +115,7 @@ app.get("/api/fighters/:id", async (req, res) => {
 // });
 
 //API version
-app.post("/api/fighters", async (req, res) => {
+app.post("/api/fighters", authenticateToken, async (req, res) => {
   const { name, health, attack, defense, ability_id } = req.body;
 
   //Letting things be negative but not at time of insertion
@@ -132,7 +161,7 @@ app.post("/api/fighters", async (req, res) => {
 // });
 
 //API version
-app.patch("/api/fighters/:id", async (req, res) => {
+app.patch("/api/fighters/:id", authenticateToken, async (req, res) => {
   const { name, health, attack, defense, ability_id } = req.body;
 
   //COALESCE lets certain fields be updated without having to update the whole fighter object
@@ -180,7 +209,7 @@ app.patch("/api/fighters/:id", async (req, res) => {
 // });
 
 //API version
-app.delete("/api/fighters/:id", async (req, res) => {
+app.delete("/api/fighters/:id", authenticateToken, async (req, res) => {
   const SQL = `
     DELETE FROM fighters
     WHERE id = $1
@@ -197,7 +226,7 @@ app.delete("/api/fighters/:id", async (req, res) => {
 });
 
 //Get abilities and sort them for when i want to use the dropdown menu to select abilities.
-app.get("/api/abilities", async (req, res) => {
+app.get("/api/abilities", authenticateToken, async (req, res) => {
   const SQL = `
     SELECT *
     FROM abilities
@@ -207,6 +236,84 @@ app.get("/api/abilities", async (req, res) => {
   const response = await client.query(SQL);
 
   return res.json(response.rows);
+});
+
+//Adding new users
+app.post("/api/users", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const SQL = `
+      INSERT INTO users (username, password)
+      VALUES ($1, $2)
+      RETURNING id, username;
+    `;
+
+    const response = await client.query(SQL, [username, hashedPassword]);
+
+    res.status(201).json(response.rows[0]);
+  } catch (error) {
+    if (error.code === "23505") {
+      return res.status(409).json({
+        error: "Username already exists",
+      });
+    }
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Something went wrong",
+    });
+  }
+});
+
+//Login
+app.post("/api/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  const SQL = `
+    SELECT * FROM users
+    WHERE username = $1;
+  `;
+
+  const response = await client.query(SQL, [username]);
+
+  if (response.rows.length === 0) {
+    return res.status(401).json({
+      error: "Invalid username or password",
+    });
+  }
+
+  const user = response.rows[0];
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+
+  if (!passwordMatch) {
+    return res.status(401).json({
+      error: "Invalid username or password",
+    });
+  }
+
+  const token = jwt.sign(
+    {
+      id: user.id,
+      username: user.username,
+    },
+    JWT_SECRET,
+    {
+      expiresIn: "1h",
+    },
+  );
+
+  res.json({
+    token: token,
+    user: {
+      id: user.id,
+      username: user.username,
+    },
+  });
 });
 
 app.listen(PORT, () => {
