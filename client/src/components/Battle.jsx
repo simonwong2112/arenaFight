@@ -75,6 +75,9 @@ function Battle({ fighters }) {
       damage = damage * (1 - defender.damageReduction / 100);
     }
 
+    //For now, damage reduction lasts for one incoming attack
+    defender.damageReduction = 0;
+
     damage = Math.max(0, damage);
     defender.hp -= damage;
 

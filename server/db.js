@@ -1,13 +1,20 @@
+require("dotenv").config();
+
 const { Client } = require("pg");
 
 const client = new Client({
-  user: "postgres",
-  host: "localhost",
-  database: "arena_clash",
-  password: "8bbfa*7eE",
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
+//   user: "postgres",
+//   host: "localhost",
+//   database: "arena_clash",
+//   password: "8bbfa*7eE",
+//   port: 5432,
+// }
 client.connect();
 
 client.query("SELECT NOW()", (err, result) => {
