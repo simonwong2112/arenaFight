@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -31,7 +34,6 @@ function Register() {
   return (
     <div>
       <h2>Register</h2>
-
       <form onSubmit={handleSubmit}>
         <div>
           <label>Username</label>
@@ -53,6 +55,11 @@ function Register() {
 
         <button type="submit">Register</button>
       </form>
+      <p> Already have an account? </p>{" "}
+      <button type="button" onClick={() => navigate("/login")}>
+        {" "}
+        Back to Login{" "}
+      </button>
     </div>
   );
 }
