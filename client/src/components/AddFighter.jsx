@@ -11,7 +11,7 @@ function AddFighter({ onFighterAdded, token }) {
   const [abilityId, setAbilityId] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/abilities", {
+    fetch(`${import.meta.env.VITE_API_URL}/api/abilities`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -34,7 +34,7 @@ function AddFighter({ onFighterAdded, token }) {
       ability_id: abilityId === "" ? null : Number(abilityId),
     };
 
-    fetch("http://localhost:3000/api/fighters", {
+    fetch(`${import.meta.env.VITE_API_URL}/api/fighters`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

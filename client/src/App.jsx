@@ -142,7 +142,7 @@ function App() {
   };
 
   const getFighters = () => {
-    fetch("http://localhost:3000/api/fighters", {
+    fetch(`${import.meta.env.VITE_API_URL}/api/fighters`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

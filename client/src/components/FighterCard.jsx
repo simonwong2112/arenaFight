@@ -18,7 +18,7 @@ function FighterCard({ fighter, onFighterChanged, token }) {
 
   //Get the list of abilities, so editing can access them to allow fighters to change abilities.
   useEffect(() => {
-    fetch("http://localhost:3000/api/abilities", {
+    fetch(`${import.meta.env.VITE_API_URL}/api/abilities`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((response) => response.json())
@@ -30,7 +30,7 @@ function FighterCard({ fighter, onFighterChanged, token }) {
 
   //Do this when the delete button is clicked
   const handleDelete = () => {
-    fetch(`http://localhost:3000/api/fighters/${fighter.id}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/api/fighters/${fighter.id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -56,7 +56,7 @@ function FighterCard({ fighter, onFighterChanged, token }) {
         editFighter.ability_id === "" ? null : Number(editFighter.ability_id),
     };
 
-    fetch(`http://localhost:3000/api/fighters/${fighter.id}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/api/fighters/${fighter.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
