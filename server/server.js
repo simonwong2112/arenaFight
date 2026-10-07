@@ -37,6 +37,9 @@ app.use(cors());
 const PORT = 3000;
 
 app.use(express.json());
+app.get("/", (req, res) => {
+  res.send("Arena Clash API is running!");
+});
 
 // app.get("/api/fighters", (req, res) => {
 //   res.json(fighters);
